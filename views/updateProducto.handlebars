@@ -1,0 +1,44 @@
+<h1 class="text-center mt-5">Actualizar producto</h1>
+
+{{#if error}}
+<h2 class="text-center mt-5">PRODUCTO NO ENCONTRADO</h2>
+{{else}}
+
+<form id="updateProducto">
+    ID: <input class="form-control" name="id" id="idProducto" type="text" value="{{producto.id}}" disabled>
+    Nombre: <input class="form-control" name="nombre" type="text" value="{{producto.nombre}}" required>
+    Descripción: <input class="form-control" name="descripcion" type="text" value="{{producto.descripcion}}" required>
+    Categoria: <input class="form-control" name="categoria" type="text" value="{{producto.categoria}}" required>
+    Stock: <input class="form-control" name="stock" type="text" value="{{producto.stock}}" required>
+    Precio: <input class="form-control" name="precio" type="number" value="{{producto.precio}}" required>
+    Descuento: <input class="form-control" name="descuento" type="number" value="{{producto.descuento}}" required>
+    Imagen: <input class="form-control" name="foto" type="file">
+    <button type="submit" class="btn btn-warning">Modificar</button>
+</form>
+
+{{/if}}
+
+<style>
+    #updateProducto img{
+        width: 200px;
+    }
+</style>
+
+<script>
+    let formularioUpdate = document.getElementById("updateProducto");
+
+    formularioUpdate.addEventListener("submit", (event) => {
+        event.preventDefault();
+        let id = idProducto.value
+        
+        axios.put("/productos/"+id, formularioUpdate)
+            .then( response => {
+                alert(response.data.message)
+                if(response.data.code == 200){
+                    location.href = "/inventario"
+                }
+            }).catch(error => {
+                console.log(error)
+            });
+    })
+</script>

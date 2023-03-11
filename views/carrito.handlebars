@@ -1,0 +1,75 @@
+<h1 class="text-center">Página carrito</h1>
+
+<section>
+  <h2>Listado de productos</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Index</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Precio</th>
+        <th scope="col">Cantidad</th>
+        <th scope="col">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody id="cuerpoTabla">
+    </tbody>
+  </table>
+  <button class="btn btn-primary" id="btnComprar">Comprar Ahora!</button>
+</section>
+
+<script>
+
+  // agregamos clase active al link de la página concurrida
+  document.querySelector("#linkCarrito").classList.add("active");
+
+  // FUNCIÓN QUE PERMITE CARGAR LOS PRODUCTOS EN EL CARRITO.
+  const cuerpoTabla = document.querySelector('#cuerpoTabla');
+
+  const renderizarCarrito = async () => {
+    const carro = JSON.parse(localStorage.getItem('carro') || '{}');
+    console.log(carro)
+    let acumuladorFilas = '';
+    let subtotal = 0;
+    let total = 0;
+
+    if (Object.keys(carro).length > 0) {
+      const stringIds = Object.keys(carro).join(',');
+      console.log(stringIds);
+      const urlPeticion = `http://localhost:3000/api/productos/filter/${stringIds}`;
+      console.log(urlPeticion);
+      const response = await fetch(urlPeticion);
+      const productos = await response.json();
+      console.log(productos);
+
+      productos.forEach((producto, index) => {
+        console.log(producto);
+        const nombre = producto.nombre;
+        const precio = producto.precio;
+        const cantidad = Object.values(carro[producto.id]);
+        console.log(cantidad)
+        const subtotalProducto = precio * cantidad;
+        subtotal += subtotalProducto;
+
+        acumuladorFilas += `
+          <tr>
+            <td>${index+1}</td>
+            <td>${nombre}</td>
+            <td>${precio}</td>
+            <td>${cantidad}</td>
+            <td>${subtotalProducto}</td>
+          </tr>
+        `;
+      });
+
+      cuerpoTabla.innerHTML = acumuladorFilas;
+    }
+  };
+
+  renderizarCarrito();
+</script>
+
+
+
+
+

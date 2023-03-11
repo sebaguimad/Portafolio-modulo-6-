@@ -1,0 +1,115 @@
+<section id="productos-carrito">
+  <h1 class="text-center my-5" style="border-bottom: solid;">LISTADO DE PRODUCTOS</h1>
+  <div class="d-flex justify-content-end">
+      <button class="btn btn-danger" id="btn-vaciar">Vaciar carrito</button>
+  </div>
+  <div class="row">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">ID</th>
+          <th scope="col">Nombre</th>
+          <th scope="col" class="precio-unitario">Precio normal</th>
+          <th scope="col">Descuento</th>
+          <th scope="col">Cantidad</th>
+          <th scope="col">Precio total</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+  {{#if compras.length}}
+    {{#each compras}}
+      <tr>
+        <td>{{@index}}</td>
+        <td>{{this.id}}</td>
+        <td>{{this.nombre}}</td>
+        <td class="precio-unitario">{{this.precio}}</td>
+        <td>{{this.descuento}}</td>
+        <td>
+            <form id="update-form-{{this.id}}" method="POST" action="/update/compras/{{this.id}}">
+              <input type="number" id="cantidad-{{this.id}}" name="cantidad" value="{{this.cantidad}}">
+            </form>
+        </td>
+        <td id="precio-total-{{this.id}}">{{this.precioTotal}}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="eliminarProducto({{this.id}})">Eliminar</button></td>
+      </tr>
+    {{/each}}
+  {{else}}
+    <tr>
+      <td colspan="8">No hay productos en el carrito</td>
+    </tr>
+  {{/if}}
+</tbody>
+</table>
+<div class="row">
+  <div class="col-md-6">
+    <label for="cupon"><strong>Cupón descuento:</strong></label>
+    <input type="text" name="cupon" id="input-cupon">
+    <button id="btn-descuento" class="btn btn-primary my-2">Aplicar descuento</button>
+  </div>
+  <div class="col-md-6">
+    <p id="precio-subtotal">Subtotal: <span>{{subtotal}}</span></p>
+    <p id="descuento">Descuento: <span>{{descuento}}</span></p>
+    <hr>
+    <h3 id="precio-total" class="text-end">Total: {{total}}</h3>
+  </div>
+</div>
+</div>
+</section>
+
+<script>
+// Evento para actualizar el precio total al cambiar la cantidad de un producto
+document.querySelectorAll('[id^="update-form-"]').forEach(form => {
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const formData = new FormData(form);
+    const cantidad = formData.get('cantidad');
+    const id = form.getAttribute('action').split('/').pop();
+
+    // Actualizar cantidad y precio total del producto
+    compras = compras.map(compra => {
+      if (compra.id == id) {
+        compra.cantidad = parseInt(cantidad);
+        compra.precioTotal = compra.cantidad * (compra.precio - (compra.precio * compra.descuento));
+        document.getElementById(`precio-total-${id}`).textContent = compra.precioTotal.toFixed(2);
+      }
+      return compra;
+    });
+
+    actualizarPrecioTotal();
+  });
+});
+
+</script>
+<script>
+let formularioCompra = document.getElementById("agregaCompra");
+
+formularioCompra.addEventListener("submit", (event) => {
+  const formData = new FormData(event.target);
+  const data = Object.fromEntries(formData.entries());
+
+  fetch("http://localhost:3000/comprar", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log("Producto agregado exitosamente:", data);
+    // Aquí puedes agregar el código para mostrar un mensaje de éxito al usuario y/o redirigirlo a otra página
+    location.reload();
+  })
+  .catch(error => {
+    console.error("Error al agregar el producto:", error);
+    // Aquí puedes agregar el código para mostrar un mensaje de error al usuario
+  })
+  .finally(() => {
+    formularioCompra.reset(); // Limpiar el formularioCompra después de enviar los datos
+  });
+
+  return false; // Evitar el envío convencional del formularioCompra
+});
+</script>

@@ -1,0 +1,15 @@
+{
+    "compras": [
+        {
+            "id": "1",
+            "nombre": "Zapatillas jordan 1",
+            "descripcion": "Es un producto nuevo",
+            "cantidad": "10",
+            "precio": "35000",
+            "cupon": 696969,
+            "descuento": 100,
+            "categoria": "gamer",
+            "imagen": "cf476d-imagen2.jpg"
+        }
+    ]
+}

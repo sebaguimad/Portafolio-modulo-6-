@@ -1,0 +1,112 @@
+<h1 class="text-center mt-5">Inventario</h1>
+
+
+<section class="section_crud py-5 mx-auto" style="width:400px;">
+<form id="agregaProducto">
+  <label for="nombre" class="form-label">Nombre:</label>
+  <input class="form-control" type="text" name="nombre" id="nombre" value="Nombre por defecto">
+  <label for="descripcion" class="form-label">Descripcion:</label>
+  <input class="form-control" type="text" name="descripcion" id="descripcion">
+  <label for="precio" class="form-label">Precio:</label>
+  <input class="form-control" type="number" name="precio" id="precio" value="0">
+  <label for="descuento" class="form-label">Descuento:</label>
+  <input class="form-control" type="number" name="descuento" id="descuento" value="0">
+  <label for="stock" class="form-label">Stock:</label>
+  <input class="form-control" type="number" name="stock" id="stock" value="0">
+  <label for="categoria" class="form-label">Categoría:</label>
+  <input class="form-control" type="text" name="categoria" id="categoria">
+  <label for="cupon" class="form-label">Cupón:</label>
+  <input class="form-control" type="text" name="cupon" id="cupon">
+  <label for="imagen" class="form-label">Imagen:</label>
+  <input class="form-control" type="text" name="imagen" id="imagen">
+  <button type="submit" class="btn btn-primary my-2" id="btn-agregar">Agregar</button>
+</form>
+</section>
+<section class="mt-3">
+    <table class="table">
+  <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Descripcion</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Descuento</th>
+                    <th scope="col">Stock</th>
+                    <th scope="col">Categoría</th>
+                    <th scope="col">Imagen</th>
+                    <th scope="col">Cupón</th>
+                    <th scope="col">Modificar</th>
+                    <th scope="col">Eliminar</th>
+                </tr>
+  </thead>
+  <tbody>
+    {{#each productos}}
+        <tr>
+            <th scope="row">{{this.id}}</th>
+            <th scope="row">{{this.nombre}}</th>
+            <td>{{this.descripcion}}</td>
+            <td>{{this.precio}}</td>
+            <td>{{this.descuento}}</td>
+            <td>{{this.stock}}</td>
+            <td>{{this.categoria}}</td>
+            <td><img src="/public/imgs/{{this.imagen}}" alt="{{this.nombre}}"></td>
+            <td>{{this.cupon}}</td>
+            <td><a href="/update/productos/{{this.id}}" class="btn btn-warning">Modificar</a></td>
+            <td><button class="btn btn-danger" onclick="eliminarProducto('{{this.id}}')">Eliminar</button></td>
+        </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+</section>
+
+<style>
+    table img{
+        width: 100px;
+    }
+</style>
+<script>
+function eliminarProducto(id) {
+  fetch(`/productos/${id}`, {
+    method: "DELETE",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      // recarga la página para reflejar el cambio en la tabla de inventario
+      location.reload();
+    })
+    .catch((error) => console.log(error));
+}
+</script>
+<script>
+let formularioInventario = document.getElementById("agregaProducto");
+
+formularioInventario.addEventListener("submit", (event) => {
+  const formData = new FormData(event.target);
+  const data = Object.fromEntries(formData.entries());
+
+  fetch("http://localhost:3000/producto", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log("Producto agregado exitosamente:", data);
+    // Aquí puedes agregar el código para mostrar un mensaje de éxito al usuario y/o redirigirlo a otra página
+    location.reload();
+  })
+  .catch(error => {
+    console.error("Error al agregar el producto:", error);
+    // Aquí puedes agregar el código para mostrar un mensaje de error al usuario
+  })
+  .finally(() => {
+    formularioInventario.reset(); // Limpiar el formularioInventario después de enviar los datos
+  });
+
+  return false; // Evitar el envío convencional del formularioInventario
+});
+</script>

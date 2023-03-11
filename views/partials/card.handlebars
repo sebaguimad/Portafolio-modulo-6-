@@ -1,0 +1,39 @@
+<div class="card mb-3 mx-auto mt-5" style="max-width: 540px;">
+  <div class="row g-0">
+    <div class="col-md-4">
+      <img src="{{img}}" class="img-fluid rounded-start" alt="{{nombre}}">
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h5 class="card-title">{{nombre}}</h5>
+        <p class="card-text">{{descripcion}}</p>
+        <p class="card-text">Stock: {{stock}}</p>
+        <p class="card-text">Precio: {{precio}}</p>
+        <button class="btn btn-primary" onclick="agregarProductoAlCarro('{{id}}', {{stock}})">Agregar al carro</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+function agregarProductoAlCarro(productoId, stock) {
+  // Verificar si el producto ya existe en el carro
+  let carro = JSON.parse(localStorage.getItem("carro")) || {};
+  if (carro.hasOwnProperty(productoId)) {
+    // Si el producto ya existe en el carro, sumar 1 a la cantidad
+    if (carro[productoId].cantidad < stock) {
+      carro[productoId].cantidad += 1;
+    } else {
+      console.log("No se pueden agregar más unidades de este producto.");
+    }
+  } else {
+    // Si el producto no existe en el carro, añadirlo con la cantidad
+    carro[productoId] = { cantidad: 1 };
+  }
+  // Guardar el carro actualizado en el Local Storage
+  localStorage.setItem("carro", JSON.stringify(carro));
+}
+</script>
+
+

@@ -1,0 +1,57 @@
+<h1 class="text-center">Listado de ventas</h1>
+
+<section>
+    <h2>Listado de ventas</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Fecha</th>
+        <th scope="col">Monto venta</th>
+      </tr>
+    </thead>
+    <tbody id="cuerpoTabla">
+
+    </tbody>
+  </table>
+</section>
+
+<script>
+    document.querySelector("#linkVentas").classList.add("active");
+
+  const cargarTabla = (ventas) => {
+        cuerpoTabla.innerHTML = "";
+
+        let acumuladorFilas= "";
+        ventas.ventas.forEach(venta => {
+            let template = `
+                <tr>
+                    <th scope="row">${venta.id}</th>
+                    <td>${venta.fecha}</td>
+                    <td>${venta.total}</td>
+                </tr>
+                `
+            acumuladorFilas+= template;
+            
+        })
+
+        cuerpoTabla.innerHTML = acumuladorFilas;
+
+    }
+
+    const traerVentas = () => {
+        fetch("http://localhost:3000/api/ventas")
+            .then(response => response.json())
+            .then(data => {
+                if(data.code == 400 || data.code == 500){
+                    alert("Se ha generado el siguiente problema: " + data.message)
+                }else{
+                    cargarTabla(data);
+                }
+
+            }).catch(error => console.log(error))
+
+    }
+
+    traerVentas();
+</script>
