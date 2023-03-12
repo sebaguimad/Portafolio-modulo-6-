@@ -1,75 +1,157 @@
 <h1 class="text-center">Página carrito</h1>
 
 <section>
-  <h2>Listado de productos</h2>
+    <h2>Listado de productos</h2>
   <table class="table">
     <thead>
       <tr>
-        <th scope="col">Index</th>
+        <th scope="col">ID</th>
         <th scope="col">Nombre</th>
         <th scope="col">Precio</th>
         <th scope="col">Cantidad</th>
-        <th scope="col">Subtotal</th>
+        <th scope="col">Stock disponible</th>
+        <th scope="col">Total</th>
       </tr>
     </thead>
     <tbody id="cuerpoTabla">
+
     </tbody>
   </table>
   <button class="btn btn-primary" id="btnComprar">Comprar Ahora!</button>
 </section>
 
+
+
+
 <script>
+    //agregamos clase active al link de la página concurrida
+        document.querySelector("#linkCarrito").classList.add("active")
 
-  // agregamos clase active al link de la página concurrida
-  document.querySelector("#linkCarrito").classList.add("active");
+        //FUNCIÓN QUE PERMITE CARGAR LOS PRODUCTOS.
+    const cargarTabla = (productos) => {
+        cuerpoTabla.innerHTML = "";
 
-  // FUNCIÓN QUE PERMITE CARGAR LOS PRODUCTOS EN EL CARRITO.
-  const cuerpoTabla = document.querySelector('#cuerpoTabla');
+        let acumuladorFilas= "";
+        productos.forEach(producto => {
+            let template = `
+                <tr>
+                    <th scope="row">${producto.id}</th>
+                    <td>${producto.nombre}</td>
+                    <td>${producto.precio}</td>
+                    <td><input type="number" name="cantidad" value="${producto.cantidad}" onchange="modificarCantidad(this.value, '${producto.id}')" min="0" max="${producto.stock}"></td>
+                    <td>${producto.stock}</td>
+                    <td>${producto.subtotal}</td>
+                </tr>
+                `
+            acumuladorFilas+= template;
+            
+        })
 
-  const renderizarCarrito = async () => {
-    const carro = JSON.parse(localStorage.getItem('carro') || '{}');
-    console.log(carro)
-    let acumuladorFilas = '';
-    let subtotal = 0;
-    let total = 0;
+        let total = productos.reduce(
+                    (accumulator, currentValue) => accumulator + (currentValue.cantidad * currentValue.precio), 0
+                    );
 
-    if (Object.keys(carro).length > 0) {
-      const stringIds = Object.keys(carro).join(',');
-      console.log(stringIds);
-      const urlPeticion = `http://localhost:3000/api/productos/filter/${stringIds}`;
-      console.log(urlPeticion);
-      const response = await fetch(urlPeticion);
-      const productos = await response.json();
-      console.log(productos);
+        acumuladorFilas+= `
+                <tr>
+                    <tr> <td colspan="6" class="text-end fs-2">Total a pagar: ${total}</td></tr>
+                </tr>`
+        cuerpoTabla.innerHTML = acumuladorFilas;
 
-      productos.forEach((producto, index) => {
-        console.log(producto);
-        const nombre = producto.nombre;
-        const precio = producto.precio;
-        const cantidad = Object.values(carro[producto.id]);
-        console.log(cantidad)
-        const subtotalProducto = precio * cantidad;
-        subtotal += subtotalProducto;
-
-        acumuladorFilas += `
-          <tr>
-            <td>${index+1}</td>
-            <td>${nombre}</td>
-            <td>${precio}</td>
-            <td>${cantidad}</td>
-            <td>${subtotalProducto}</td>
-          </tr>
-        `;
-      });
-
-      cuerpoTabla.innerHTML = acumuladorFilas;
     }
-  };
 
-  renderizarCarrito();
+//FUNCIÓN QUE PERMITE CORROBORAR LA CANTIDAD DE PRODUCTOS QUE SE QUIEREN COMPRAR EM COMPARACIÓN A LOS PRODUCTOS DEL SERVIDOR.
+        const calcularProductos= async () => {
+            try{
+                
+                let storageCarro = JSON.parse(localStorage.getItem("productos")) || [];
+
+                let productosIds = [];
+
+                if(storageCarro.length > 0){
+                    storageCarro.forEach((producto) => {
+                    productosIds.push(producto.id)
+                })
+                let stringIds = productosIds.join(",");
+                let urlPeticion = "http://localhost:3000/api/productos/filter/"+ stringIds
+                let response = await fetch(urlPeticion);
+                let data = await response.json();
+
+                let productosCargar = [];
+                storageCarro.forEach((productoCarro) => {
+                    let producto = data.find(element => element.id == productoCarro.id)
+                    producto.cantidad = productoCarro.cantidad;
+                    producto.subtotal = (producto.cantidad * producto.precio)
+                    productosCargar.push(producto);
+                })
+
+                cargarTabla(productosCargar);
+                }else {
+                    cuerpoTabla.innerHTML = "";
+                    cuerpoTabla.innerHTML = `<tr> <td colspan="6" class="text-center">NO HAY PRODUCTOS EN EL CARRITO</td></tr>`;
+                }
+
+            }catch(error){
+                localStorage.setItem("productos", "[]")
+                location.reload();
+            }
+
+        }
+
+        calcularProductos();
+
+        //FUNCIÓN QUE PERMITA MODIFICAR LA CANTIDAD DE PRODUCTOS A COMPRAR
+
+        const modificarCantidad = (cantidad, productoId) => {
+            let storageCarro = JSON.parse(localStorage.getItem("productos")) || []
+             storageCarro = storageCarro.map(producto => {
+                if(producto.id == productoId){
+                    producto.cantidad = cantidad;
+                }
+                return producto
+             }).filter(producto => producto.cantidad >0)
+            localStorage.setItem("productos", JSON.stringify(storageCarro))
+            calcularProductos();
+
+        }
+
+
+
+//ENVIAR LOS PRODUCTOS COMPRADOS AL BACKEND
+btnComprar.addEventListener("click", (event) => {
+    let storageCarro = JSON.parse(localStorage.getItem("productos")) || [];
+    console.log("Carrito de compras: ", storageCarro);
+
+    if (storageCarro.length > 0) {
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        fetch("http://localhost:3000/api/ventas", {
+            method: "POST",
+            headers: myHeaders,
+            body: JSON.stringify(storageCarro),
+        })
+            .then((response) => {
+                console.log("Respuesta de la venta: ", response);
+                return response.json();
+            })
+            .then((data) => {
+                console.log("Datos de la venta: ", data);
+                if (data.code == 500 || data.code == 400) {
+                    alert(data.message);
+                } else {
+                    alert("Venta: " + data.message);
+                    localStorage.setItem("productos", "[]");
+                    location.reload();
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                alert("Algo ha salido mal al cargar los productos.");
+            });
+    } else {
+        alert("No existen productos agregados al carrito.");
+    }
+});
 </script>
-
-
-
 
 

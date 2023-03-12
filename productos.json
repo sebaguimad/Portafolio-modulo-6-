@@ -2,34 +2,33 @@
     "productos": [
         {
             "id": "3",
-            "nombre": "19789708-6",
+            "nombre": "silla fea1",
             "descripcion": "Nombre por defecto",
-            "stock": "6",
-            "precio": "2",
+            "stock": -4,
+            "precio": "9",
             "descuento": "2",
-            "categoria": "mala la silla ql",
+            "categoria": "Silla horrible",
             "imagen": "https://i.blogs.es/b25093/silla-gaming-woxter/450_1000.webp"
         },
         {
             "id": "954ecf",
             "nombre": "Nombre por defecto",
-            "descripcion": "silla ql mala",
-            "stock": "9",
+            "descripcion": "silla malísima",
+            "stock": -1,
             "precio": "20",
             "descuento": "6",
-            "categoria": "silla ql fea",
+            "categoria": "silla fea2",
             "imagen": ""
         },
         {
             "id": "af2be4",
-            "nombre": "silla ctm feaa",
-            "descripcion": "",
-            "precio": "0",
-            "descuento": "0",
-            "stock": "0",
-            "categoria": "",
-            "imagen": "",
-            "cupon": ""
+            "nombre": "silla gamer",
+            "descripcion": "silla gamer incómoda",
+            "stock": 0,
+            "precio": "10000",
+            "descuento": "6",
+            "categoria": "gamer",
+            "imagen": ""
         }
     ]
 }

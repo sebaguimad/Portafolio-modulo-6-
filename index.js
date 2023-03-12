@@ -297,6 +297,8 @@ app.post("/producto", (req, res) => {
 // aquí empiezo a hacer rutas yo para el carro de compras
 //RUTAS / ENDPOINTS VENTAS
 
+
+
 app.route("/api/ventas")
     .get((req, res) =>{
         leerArchivo("ventas.json").then(respuesta => {
@@ -306,40 +308,26 @@ app.route("/api/ventas")
         })
     })
     .post((req, res) =>{
-        let productos = req.body;
-        let nuevaVenta = {
-            id:  uuid().slice(0,6),
-            fecha: moment().format('DD-MM-YYYY'),
-            productos,
-            total: 0
+        if (!req.body || !Array.isArray(req.body) || req.body.length === 0) {
+            return res.status(400).json({code: 400, message: "Debe enviar al menos un producto"})
         }
-        let productosTienda = JSON.parse(fs.readFileSync("productos.json", "utf-8"));
 
-            nuevaVenta.productos.forEach(producto => {
-            let productoEncontrado = productosTienda.productos.find(element => element.id == producto.id)
-            console.log(productoEncontrado)
-            nuevaVenta.total += productoEncontrado.precio * producto.cantidad;
-            
-        })
+        let productos = req.body;
 
-        leerArchivo("ventas.json")
-            .then(ventas => {
+        leerArchivo("productos.json").then(productosTienda => {
+            let nuevaVenta = venderProductos(productos, productosTienda);
+            return leerArchivo("ventas.json").then(ventas => {
                 ventas.ventas.push(nuevaVenta);
                 return ventas;
-            })
-            .then(data => {
+            }).then(data => {
                 actualizarArchivo("ventas.json", data)
                     .then(respuesta => {
-                    
-                        return res.status(201).json({code: 201, message: respuesta})
-
+                        res.status(201).json({code: 201, message: respuesta})
                     }).catch(error => {
-                        return res.status(500).json({code: 500, message: error})
+                        res.status(500).json({code: 500, message: error})
                     })
-
-            })
-            .catch(error => {
-                return res.status(500).send({code:500, message: error})
+            }).catch(error => {
+                res.status(500).json({code:500, message: error})
             }).finally(() => {
                 descontarProductos(nuevaVenta).then(respuesta => {
                     console.log(respuesta)
@@ -347,7 +335,41 @@ app.route("/api/ventas")
                     console.log("error: ", error)
                 })
             })
+        }).catch(error => {
+            res.status(500).json({code:500, message: error})
+        })
 })
+
+function venderProductos(productos, productosTienda) {
+    let nuevaVenta = {
+        id:  uuid().slice(0,6),
+        fecha: moment().format('DD-MM-YYYY'),
+        productos,
+        total: 0
+    }
+
+    productos.forEach(producto => {
+        let productoEncontrado = productosTienda.productos.find(element => element.id == producto.id)
+        nuevaVenta.total += productoEncontrado.precio * producto.cantidad;
+    })
+
+    return nuevaVenta;
+}
+
+
+
+function actualizarArchivo(nombre, data){
+    return new Promise((resolve, reject) => {
+        fs.writeFile(nombre, JSON.stringify(data, null, 4), "utf8", (error) => {
+            if(error) reject("Error al registrar los datos.");
+            resolve("Proceso se ha completado con éxito.");
+        })
+    })
+
+}
+
+
+
 
 //RUTAS / ENDPOINTS PRODUCTOS
 app.route("/api/productos")
@@ -427,7 +449,7 @@ app.route("/api/productos/:id")
             let productoBuscado = productos.productos.find(producto => producto.id == id);
             res.json(productoBuscado);
         })
-    })
+})
 
 app.route("/api/productos/filter/:ids")
     .get((req, res) =>{
@@ -439,9 +461,7 @@ app.route("/api/productos/filter/:ids")
             let productosFiltrados = productos.productos.filter(producto => ids.includes(producto.id));
             res.json(productosFiltrados);
         })
- })
+})
 
 
   
-
-//FUNCIONES

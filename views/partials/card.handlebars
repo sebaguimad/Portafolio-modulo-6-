@@ -17,23 +17,32 @@
 
 
 <script>
-function agregarProductoAlCarro(productoId, stock) {
-  // Verificar si el producto ya existe en el carro
-  let carro = JSON.parse(localStorage.getItem("carro")) || {};
-  if (carro.hasOwnProperty(productoId)) {
-    // Si el producto ya existe en el carro, sumar 1 a la cantidad
-    if (carro[productoId].cantidad < stock) {
-      carro[productoId].cantidad += 1;
-    } else {
-      console.log("No se pueden agregar más unidades de este producto.");
-    }
-  } else {
-    // Si el producto no existe en el carro, añadirlo con la cantidad
-    carro[productoId] = { cantidad: 1 };
-  }
-  // Guardar el carro actualizado en el Local Storage
-  localStorage.setItem("carro", JSON.stringify(carro));
-}
+        const agregarProductoAlCarro = (id, stock) => {
+            try{
+
+                let storageCarro = JSON.parse(localStorage.getItem("productos")) || []
+
+                let buscarProducto = storageCarro.find(producto => producto.id == id)
+                if(buscarProducto){
+                    if(buscarProducto.cantidad >= stock){
+                        buscarProducto.cantidad = stock
+                        alert("Usted alcanzó el stock máximo de productos: " + stock);
+                    }else {
+                        buscarProducto.cantidad = buscarProducto.cantidad +1
+                    }
+                    
+                }else {
+                    storageCarro.push({id, cantidad: 1})
+                }
+                alert("Producto agregado correctamente.")
+                localStorage.setItem("productos", JSON.stringify(storageCarro))
+
+            }catch(error){
+                alert("Ha ocurrido un error al cargar el producto, intente nuevamente.")
+                localStorage.setItem("productos", "[]")
+                location.reload();
+            }
+        }
 </script>
 
 

@@ -1,15 +1,23 @@
 {
-    "compras": [
+    "ventas": [
         {
-            "id": "1",
-            "nombre": "Zapatillas jordan 1",
-            "descripcion": "Es un producto nuevo",
-            "cantidad": "10",
-            "precio": "35000",
-            "cupon": 696969,
-            "descuento": 100,
-            "categoria": "gamer",
-            "imagen": "cf476d-imagen2.jpg"
+            "id": "39a1a1",
+            "fecha": "12-03-2023",
+            "productos": [
+                {
+                    "id": "954ecf",
+                    "cantidad": 2
+                },
+                {
+                    "id": "3",
+                    "cantidad": 2
+                },
+                {
+                    "id": "af2be4",
+                    "cantidad": 1
+                }
+            ],
+            "total": 10058
         }
     ]
 }

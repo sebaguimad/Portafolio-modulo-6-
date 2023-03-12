@@ -58,30 +58,7 @@
 </div>
 </section>
 
-<script>
-// Evento para actualizar el precio total al cambiar la cantidad de un producto
-document.querySelectorAll('[id^="update-form-"]').forEach(form => {
-  form.addEventListener('submit', event => {
-    event.preventDefault();
-    const formData = new FormData(form);
-    const cantidad = formData.get('cantidad');
-    const id = form.getAttribute('action').split('/').pop();
 
-    // Actualizar cantidad y precio total del producto
-    compras = compras.map(compra => {
-      if (compra.id == id) {
-        compra.cantidad = parseInt(cantidad);
-        compra.precioTotal = compra.cantidad * (compra.precio - (compra.precio * compra.descuento));
-        document.getElementById(`precio-total-${id}`).textContent = compra.precioTotal.toFixed(2);
-      }
-      return compra;
-    });
-
-    actualizarPrecioTotal();
-  });
-});
-
-</script>
 <script>
 let formularioCompra = document.getElementById("agregaCompra");
 
