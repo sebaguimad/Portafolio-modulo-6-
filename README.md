@@ -11,4 +11,4 @@ Consta de una página home, carrito (de compras), inventario de productos donde 
 
 Una vez, apretado el botón comprar ahora, se envía un formulario que representa un registro de la compra, donde se registra, la id del producto, la cantidad de producto y la fecha cuando se realizó la compra. Que, luego de comprar se re dirije a una página la cual muestra el listado de las ventas/compras ejecutadas.
 
-URL del repositorio GITHUB:
+URL del repositorio GITHUB: https://github.com/sebaguimad/Portafolio-modulo-6-
